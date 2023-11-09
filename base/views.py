@@ -10,6 +10,7 @@ from django.contrib.auth import authenticate, login, logout
 from .models import Room, Topic
 from .forms import RoomForm
 from django.contrib.auth.forms import UserCreationForm
+
 def loginPage(request):
     page = 'login'
     if request.user.is_authenticated:
@@ -26,7 +27,6 @@ def loginPage(request):
         user  = authenticate(request, username=username, password = password)
         if user is not None:
             login(request, user)
-            print(f"This is request {request}")
             return redirect('home')
         else:
             messages.error(request, 'Username or password does not exist')
