@@ -7,7 +7,7 @@ from django.db.models import Q
 # Create your views here.
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
-from .models import Room, Topic
+from .models import Room, Topic,Message
 from .forms import RoomForm
 from django.contrib.auth.forms import UserCreationForm
 def loginPage(request):
@@ -42,7 +42,7 @@ def registerPage(request):
 
     form = UserCreationForm()
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = UserCreationForm(request.POST)   
         if form.is_valid():
             user = form.save(commit = False)
             user.username = user.username.lower()
@@ -59,7 +59,7 @@ def registerPage(request):
 def home(request):
     q = request.GET.get('q') if request.GET.get('q') != None else ''  
 
-    rooms = Room.objects.filter(
+    rooms = Room.objects.filter( 
         Q(topic__name__icontains= q) |
         Q(name__icontains = q) |
         Q(description__icontains=q)
@@ -71,8 +71,16 @@ def home(request):
     return render(request,'base/home.html', context)
 
 def room(request, pk):
-    room = Room.objects.get(id = pk)
-    context = {'room': room}
+    room = Room.objects.get(id = pk)  
+    if request.method == 'POST':
+        message = Message.objects.create(
+            user = request.user,
+            room = room,
+            body = request.POST.get('body')
+        )  
+        return redirect('room',pk = room.id)
+    room_messages = room.message_set.all().order_by('-created') #we can query child query of a room. in this case we use room to get all messages associated with that room
+    context = {'room': room,'room_messages': room_messages}
     return render(request,'base/room.html', context)
 
 @login_required(login_url='login')
