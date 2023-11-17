@@ -72,6 +72,9 @@ def home(request):
 
 def room(request, pk):
     room = Room.objects.get(id = pk)  
+    room_messages = room.message_set.all().order_by('-created') #we can query child query of a room. in this case we use room to get all messages associated with that room
+    participants = room.participants.all()
+    print('I am name:', room.participants)
     if request.method == 'POST':
         message = Message.objects.create(
             user = request.user,
@@ -79,8 +82,8 @@ def room(request, pk):
             body = request.POST.get('body')
         )  
         return redirect('room',pk = room.id)
-    room_messages = room.message_set.all().order_by('-created') #we can query child query of a room. in this case we use room to get all messages associated with that room
-    context = {'room': room,'room_messages': room_messages}
+
+    context = {'room': room,'room_messages': room_messages,'participants': participants}
     return render(request,'base/room.html', context)
 
 @login_required(login_url='login')
