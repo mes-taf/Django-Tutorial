@@ -1,6 +1,7 @@
 {% extends 'main.html' %}
 
 {% block content %}
+<div class = "room-container">
 <h1>{{room.name}}</h1>
 <p>{{room.description}}</p>
 
@@ -24,4 +25,5 @@
         </form>
         </div>
 {% endif %}
+</div>
 {% endblock %}
